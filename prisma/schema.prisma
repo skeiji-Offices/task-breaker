@@ -1,10 +1,3 @@
-承知しました。 これが**「環境変数のエラーを絶対に起こさない、最もシンプルな構成」**にした prisma/schema.prisma の全文です。
-
-これを丸ごとコピーして、元のファイルに上書きしてください。
-
-📄 prisma/schema.prisma 全文
-コード スニペット
-
 generator client {
   provider = "prisma-client-js"
 }
