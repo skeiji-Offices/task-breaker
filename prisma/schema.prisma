@@ -1,14 +1,21 @@
+承知しました。 これが**「環境変数のエラーを絶対に起こさない、最もシンプルな構成」**にした prisma/schema.prisma の全文です。
+
+これを丸ごとコピーして、元のファイルに上書きしてください。
+
+📄 prisma/schema.prisma 全文
+コード スニペット
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL")
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
 }
 
-// 親タスク (Goal)
+// --- Task Breaker Models ---
+
 model Goal {
   id          String   @id @default(uuid())
   title       String
@@ -16,27 +23,23 @@ model Goal {
   deadline    DateTime
   createdAt   DateTime @default(now())
   
-  // 子タスクとの関係
   steps       Step[]
 
-  // ユーザーとの関係 (必須にしました)
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// 子タスク (Step)
 model Step {
   id          String   @id @default(uuid())
   title       String
   isCompleted Boolean  @default(false)
   deadline    DateTime
   
-  // 親タスクとの関係
   goalId      String
   goal        Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
 }
 
-// --- 以下、NextAuth用の標準モデル ---
+// --- NextAuth.js Models ---
 
 model Account {
   id                 String  @id @default(cuid())
