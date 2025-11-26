@@ -15,7 +15,7 @@ export async function PATCH(
         }
 
         const { id } = await params;
-        const { isCompleted } = await request.json();
+        const { isCompleted, title } = await request.json();
 
         const existingStep = await prisma.step.findUnique({
             where: { id },
@@ -30,9 +30,13 @@ export async function PATCH(
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
+        const updateData: { isCompleted?: boolean; title?: string } = {};
+        if (isCompleted !== undefined) updateData.isCompleted = isCompleted;
+        if (title !== undefined) updateData.title = title;
+
         const step = await prisma.step.update({
             where: { id },
-            data: { isCompleted },
+            data: updateData,
         });
 
         return NextResponse.json(step);
