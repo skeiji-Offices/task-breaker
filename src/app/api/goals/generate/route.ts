@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { prisma } from '@/lib/prisma';
-import { addDays, differenceInDays, format } from 'date-fns';
+import { differenceInDays, format } from 'date-fns';
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 
@@ -11,6 +11,11 @@ console.log("API Key Status:", apiKey ? "Set" : "Not Set");
 
 const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+interface StepData {
+    title: string;
+    deadline: string;
+}
 
 export async function POST(request: Request) {
     try {
@@ -64,10 +69,10 @@ export async function POST(request: Request) {
         // Clean up potential markdown formatting
         text = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
-        let stepsData;
+        let stepsData: StepData[];
         try {
             stepsData = JSON.parse(text);
-        } catch (e) {
+        } catch (_) {
             console.error('Failed to parse Gemini response:', text);
             return NextResponse.json({ error: 'Failed to generate valid steps' }, { status: 500 });
         }
@@ -79,7 +84,7 @@ export async function POST(request: Request) {
                 deadline: targetDate,
                 userId: session.user.id,
                 steps: {
-                    create: stepsData.map((step: any) => ({
+                    create: stepsData.map((step: StepData) => ({
                         title: step.title,
                         deadline: new Date(step.deadline),
                     })),
